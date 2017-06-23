@@ -3,14 +3,23 @@ package com.cooksys.friendlr.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+
+@Entity
 public class Person {
 
+	@Id
+	@GeneratedValue
 	Integer id;
 	
 	String firstName;
 	
 	String lastName;
 	
+	@ManyToMany
 	List<Person> friends = new ArrayList<Person>();
 
 	public Integer getId() {

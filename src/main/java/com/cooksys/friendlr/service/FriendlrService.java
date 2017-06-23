@@ -10,53 +10,48 @@ import org.springframework.stereotype.Service;
 import com.cooksys.friendlr.dto.PersonWithIdDto;
 import com.cooksys.friendlr.exception.PersonNotFoundException;
 import com.cooksys.friendlr.pojo.Person;
+import com.cooksys.friendlr.repository.PersonRepository;
 
 @Service
 public class FriendlrService {
 
 	Logger log = LoggerFactory.getLogger(getClass());
 	
-	List<Person> allPeople = new ArrayList<Person>();
+	PersonRepository personRepo;
+	
+	public FriendlrService(PersonRepository personRepo) {
+		this.personRepo = personRepo;
+	}
+	
+	public List<Person> getByFirstName(String name) {
+		return personRepo.getByFirstName(name);
+	}
+	
+	public List<Person> getByNamez(String firstName, String lastName) {
+		return personRepo.getByNamez(firstName, lastName);
+	}
 	
 	public List<Person> getAllPersons() {
-		return allPeople;
+		return personRepo.getAll();
 	}
 
 	public Person getPerson(Integer personId) {
-		checkIds(personId);
-		
-		return allPeople.get(personId);
+		return personRepo.get(personId);
 	}
 
 	public Person createPerson(Person person) {
-		person.setId(allPeople.size());
-		allPeople.add(person);
-		return person;
+		return personRepo.create(person);
 	}
 
 	public Person addFriend(Integer personId, Integer friendId) {
-		checkIds(personId, friendId);
-		
-		allPeople.get(personId).getFriends().add(allPeople.get(friendId));
-		return allPeople.get(personId);
+		Person addedAFriend = personRepo.get(personId);
+		addedAFriend.getFriends().add(personRepo.get(friendId));
+		personRepo.update(addedAFriend);
+		return addedAFriend;
 	}
 
 	public List<Person> getFriends(Integer personId) {
-		checkIds(personId);
-		
-		return allPeople.get(personId).getFriends();
-	}
-	
-	private void checkIds(Integer... ids) {
-		
-		for(Integer id : ids) {
-			log.debug("Checking id: " + id);
-			if(id >= allPeople.size() || id < 0) {
-				log.debug("id " + id + " is not valid! Throwing exception");
-				throw new PersonNotFoundException(id);
-			}
-			log.debug("id " + id + " is valid");
-		}
+		return personRepo.get(personId).getFriends();
 	}
 
 }

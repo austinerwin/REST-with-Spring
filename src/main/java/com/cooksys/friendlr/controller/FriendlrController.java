@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cooksys.friendlr.dto.PersonSansIdDto;
@@ -31,10 +33,18 @@ public class FriendlrController {
 	}
 	
 	@GetMapping("person")
-	public List<PersonWithIdDto> getAll() {
-		return service.getAllPersons().stream().map(person -> mapper.toPersonWithId(person)).collect(Collectors.toList());
+	public List<PersonWithIdDto> getAll(@RequestParam(required = false, value = "firstname") String firstName, @RequestParam(required = false, value = "lastname") String lastName) {
+		
+		if(firstName != null || lastName != null)
+			return mapList(service.getByNamez(firstName, lastName));
+		
+		return mapList(service.getAllPersons());
 	}
 	
+	private List<PersonWithIdDto> mapList(List<Person> list) {
+		return list.stream().map(person -> mapper.toPersonWithId(person)).collect(Collectors.toList());
+	}
+
 	@GetMapping("person/{id}")
 	public PersonSansIdDto get(@PathVariable Integer id) {
 		return mapper.toPersonSansId(service.getPerson(id));
